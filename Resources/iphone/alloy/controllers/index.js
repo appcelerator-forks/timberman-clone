@@ -1,29 +1,4 @@
 function Controller() {
-    function Queue() {
-        var queue = [];
-        var offset = 0;
-        this.getLength = function() {
-            return queue.length - offset;
-        };
-        this.isEmpty = function() {
-            return 0 == queue.length;
-        };
-        this.enqueue = function(item) {
-            queue.push(item);
-        };
-        this.dequeue = function() {
-            if (0 == queue.length) return void 0;
-            var item = queue[offset];
-            if (2 * ++offset >= queue.length) {
-                queue = queue.slice(offset);
-                offset = 0;
-            }
-            return item;
-        };
-        this.peek = function() {
-            return queue.length > 0 ? queue[offset] : void 0;
-        };
-    }
     function addRow(type) {
         var row = Ti.UI.createView({
             height: rowHeight,
@@ -34,12 +9,22 @@ function Controller() {
                 height: rowHeight,
                 width: columnWidth
             });
-            0 == i ? box.backgroundColor = type == rowType.right ? "black" : "white" : 1 == i ? box.backgroundColor = "black" : 2 == i && (box.backgroundColor = type == rowType.left ? "black" : "white");
+            0 == i ? box.backgroundColor = type == Position.right ? "black" : "white" : 1 == i ? box.backgroundColor = "black" : 2 == i && (box.backgroundColor = type == Position.left ? "black" : "white");
             row.add(box);
         }
         queue.enqueue(type);
         $.grid.add(row);
-        (0 == type || 1 == type) && addRow(2);
+        (0 == type || 1 == type) && addRow(Position.middle);
+    }
+    function chopTree(playerPos) {
+        var poppedRow = queue.dequeue();
+        var nextRow = queue.peek();
+        Ti.API.error("pop: " + poppedRow);
+        queue.getLength() < Alloy.Globals.numberOfTreeSections - 1 && addRow(getRandomInt(0, 2));
+        var rows = $.grid.getChildren();
+        $.grid.remove(rows[0]);
+        Ti.API.error("queue length: " + queue.getLength());
+        nextRow == playerPos && alert("GAME OVER");
     }
     function getRandomInt(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -63,45 +48,63 @@ function Controller() {
         id: "grid"
     });
     $.__views.index.add($.__views.grid);
-    $.__views.chopButton = Ti.UI.createButton({
-        bottom: "0dp",
-        height: "45dp",
-        width: Ti.UI.FILL,
-        backgroundColor: "#1996be",
-        id: "chopButton"
+    $.__views.trunk = Ti.UI.createView({
+        id: "trunk"
     });
-    $.__views.index.add($.__views.chopButton);
+    $.__views.index.add($.__views.trunk);
+    $.__views.leftChopButton = Ti.UI.createButton({
+        height: "100%",
+        width: "50%",
+        left: "0dp",
+        zIndex: 1,
+        id: "leftChopButton"
+    });
+    $.__views.index.add($.__views.leftChopButton);
+    $.__views.rightChopButton = Ti.UI.createButton({
+        height: "100%",
+        width: "50%",
+        right: "0dp",
+        zIndex: 1,
+        id: "rightChopButton"
+    });
+    $.__views.index.add($.__views.rightChopButton);
+    $.__views.player = Ti.UI.createView({
+        pos: 0,
+        backgroundColor: "green",
+        id: "player"
+    });
+    $.__views.index.add($.__views.player);
     exports.destroy = function() {};
     _.extend($, $.__views);
+    var Queue = require("Queue");
     var queue = new Queue();
-    var rowType = {
+    var Position = {
         left: 0,
         right: 1,
-        b: 2,
-        mandatoryBlank: 3
+        middle: 2
     };
     var rotate180 = Ti.UI.create2DMatrix().rotate(180);
-    var rowHeight = Titanium.Platform.displayCaps.platformHeight / 7;
+    var rowHeight = Math.floor(Titanium.Platform.displayCaps.platformHeight / Alloy.Globals.numberOfTreeSections);
     var columnWidth = Titanium.Platform.displayCaps.platformWidth / 3;
-    Ti.API.info(rowHeight + " " + columnWidth);
-    $.grid.setHeight(6 * rowHeight);
+    var playerPosOffset = columnWidth / 4;
+    $.grid.setHeight(rowHeight * (Alloy.Globals.numberOfTreeSections - 1));
     $.grid.setTransform(rotate180);
-    addRow(rowType.right);
-    addRow(rowType.left);
-    addRow(rowType.left);
+    $.player.setHeight(1.5 * rowHeight);
+    $.player.setWidth(columnWidth / 2);
+    $.player.setBottom(.5 * rowHeight);
+    $.player.setLeft(playerPosOffset);
+    addRow(Position.right);
+    while (queue.getLength() < Alloy.Globals.numberOfTreeSections - 1) addRow(getRandomInt(0, 1));
     $.index.open();
-    var num = 3;
-    $.chopButton.addEventListener("singletap", function() {
-        var nextRow = queue.dequeue();
-        Ti.API.error("pop: " + nextRow);
-        Ti.API.error("current length: " + queue.getLength());
-        num++;
-        if (4 == num) {
-            num = 0;
-            addRow(getRandomInt(0, 2));
-        }
-        var rows = $.grid.getChildren();
-        $.grid.remove(rows[0]);
+    $.leftChopButton.addEventListener("singletap", function() {
+        $.player.setRight(void 0);
+        $.player.setLeft(playerPosOffset);
+        chopTree(Position.left);
+    });
+    $.rightChopButton.addEventListener("singletap", function() {
+        $.player.setLeft(void 0);
+        $.player.setRight(playerPosOffset);
+        chopTree(Position.right);
     });
     _.extend($, exports);
 }

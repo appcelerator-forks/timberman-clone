@@ -6,9 +6,19 @@
 	layout: 'vertical',
 	top: '0dp',
 }
-"#chopButton": {
-	bottom: '0dp',
-	height: '45dp',
-	width: Ti.UI.FILL,
-	backgroundColor: '#1996be'
+"#leftChopButton": {
+	height: '100%',
+	width: '50%',
+	left: '0dp',
+	zIndex: 1,
+}
+"#rightChopButton": {
+	height: '100%',
+	width:'50%',
+	right: '0dp',
+	zIndex: 1,
+}
+"#player": {
+	pos: 0,
+	backgroundColor: 'green',
 }

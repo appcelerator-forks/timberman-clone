@@ -1,6 +1,9 @@
 <Alloy>
 	<Window class="container">
 		<View id="grid"></View>
-		<Button id="chopButton"></Button>
+		<View id="trunk"></View>
+		<Button id="leftChopButton"></Button>
+		<Button id="rightChopButton"></Button>
+		<View id="player"></View>
 	</Window>
 </Alloy>

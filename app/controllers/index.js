@@ -1,91 +1,42 @@
-/*
-
-Queue.js
-
-A function to represent a queue
-
-Created by Stephen Morley - http://code.stephenmorley.org/ - and released under
-the terms of the CC0 1.0 Universal legal code:
-
-http://creativecommons.org/publicdomain/zero/1.0/legalcode
-
-*/
-
-/* Creates a new queue. A queue is a first-in-first-out (FIFO) data structure -
- * items are added to the end of the queue and removed from the front.
- */
-function Queue(){
-
-  // initialise the queue and offset
-  var queue  = [];
-  var offset = 0;
-
-  // Returns the length of the queue.
-  this.getLength = function(){
-    return (queue.length - offset);
-  };
-
-  // Returns true if the queue is empty, and false otherwise.
-  this.isEmpty = function(){
-    return (queue.length == 0);
-  };
-
-  /* Enqueues the specified item. The parameter is:
-   *
-   * item - the item to enqueue
-   */
-  this.enqueue = function(item){
-    queue.push(item);
-  };
-
-  /* Dequeues an item and returns it. If the queue is empty, the value
-   * 'undefined' is returned.
-   */
-  this.dequeue = function(){
-
-    // if the queue is empty, return immediately
-    if (queue.length == 0) return undefined;
-
-    // store the item at the front of the queue
-    var item = queue[offset];
-
-    // increment the offset and remove the free space if necessary
-    if (++ offset * 2 >= queue.length){
-      queue  = queue.slice(offset);
-      offset = 0;
-    }
-
-    // return the dequeued item
-    return item;
-
-  };
-
-  /* Returns the item at the front of the queue (without dequeuing it). If the
-   * queue is empty then undefined is returned.
-   */
-  this.peek = function(){
-    return (queue.length > 0 ? queue[offset] : undefined);
-  };
-
-}
+var Queue = require('Queue');
 
 var queue = new Queue();
 
-var rowType = {
+// Possible positions for branch creation / player positioning
+var Position = {
 	left : 0,
 	right : 1,
-	b : 2,
-	mandatoryBlank : 3
+	middle : 2,
 };
 
+// Adapt game to screen size
 var rotate180 = Ti.UI.create2DMatrix().rotate(180);
-var rowHeight = Titanium.Platform.displayCaps.platformHeight / 7;
+var rowHeight = Math.floor(Titanium.Platform.displayCaps.platformHeight / 
+	Alloy.Globals.numberOfTreeSections);
 var columnWidth = Titanium.Platform.displayCaps.platformWidth / 3;
-Ti.API.info(rowHeight + " " + columnWidth);
+var playerPosOffset = columnWidth / 4;
 
-$.grid.setHeight(rowHeight * 6);
+// Initialize grid size in proportion to grid size
+$.grid.setHeight(rowHeight * (Alloy.Globals.numberOfTreeSections - 1));
 $.grid.setTransform(rotate180);
 
+// Initialize character size in proportion to screen size
+$.player.setHeight(rowHeight * 1.5);
+$.player.setWidth(columnWidth / 2);
+$.player.setBottom(rowHeight * 0.5);
+// Player starting pos
+$.player.setLeft(playerPosOffset);
+
+/*
+ * function addRow(type)
+ * 
+ * Adds a new row (tree section) to the grid (tree) of the specified
+ * type.
+ * 
+ * Parameters:
+ *  type: Can be one of Position.left, Position.middle, or Position.right
+ * 
+ */
 function addRow(type) {
 	var row = Ti.UI.createView({
 		height: rowHeight,
@@ -99,7 +50,7 @@ function addRow(type) {
 		});
 		// Right box
 		if (i == 0) {
-			if (type == rowType.right) {
+			if (type == Position.right) {
 				// Add branch
 				box.backgroundColor = 'black';
 			}
@@ -115,7 +66,7 @@ function addRow(type) {
 		}
 		// Left box
 		else if (i == 2) {
-			if (type == rowType.left) {
+			if (type == Position.left) {
 				// Add branch
 				box.backgroundColor = 'black';
 			}
@@ -126,37 +77,68 @@ function addRow(type) {
 		}
 		row.add(box);
 	}
+	// Add row type to queue
 	queue.enqueue(type);
+	// Add next row to grid
 	$.grid.add(row);
-	if (type == 0 || type == 1) {
-		addRow(2);
+	if (type == Position.left || type == Position.right) {
+		// Add a mandatory blank to guarantee death prevention if a branch
+		// was created
+		addRow(Position.middle);
 	}
 }
 
-addRow(rowType.right);
-addRow(rowType.left);
-addRow(rowType.left);
+// Add a right branch to prevent a tree branch from killing the player
+// at the start of the game
+addRow(Position.right);
+while (queue.getLength() < (Alloy.Globals.numberOfTreeSections - 1)) {
+	addRow(getRandomInt(0,1));
+}
 
-$.index.open();
+$.leftChopButton.addEventListener('singletap', function() {
+	$.player.setRight(undefined);
+	$.player.setLeft(playerPosOffset);
+	chopTree(Position.left);
+});
 
-var num = 3;
+$.rightChopButton.addEventListener('singletap', function() {
+	$.player.setLeft(undefined);
+	$.player.setRight(playerPosOffset);
+	chopTree(Position.right);
+});
 
-$.chopButton.addEventListener('singletap', function() {
+/*
+ * function chopTree(playerPos)
+ * 
+ * Called when a player taps the left section or the right section of the 
+ * screen.
+ * 
+ * Parameters: 
+ * 	playerPos: Which side the player is chopping the tree from. Can either 
+ *   be Position.left or Position.right (0 or 1)
+ * 
+ */
+function chopTree(playerPos) {
 	// 0 - left
 	// 1 - right
 	// 2 - blank
-	var nextRow = queue.dequeue();
-	Ti.API.error('pop: '+nextRow);
-	Ti.API.error('current length: '+queue.getLength());
-	num++;
-	if (num == 4) {
-		num = 0;
+	var poppedRow = queue.dequeue();
+	var nextRow = queue.peek();
+	Ti.API.error('pop: '+poppedRow);
+	if (queue.getLength() < (Alloy.Globals.numberOfTreeSections - 1)) {
 		addRow(getRandomInt(0, 2));
 	}
 	var rows = $.grid.getChildren();
 	$.grid.remove(rows[0]);
-});
+	Ti.API.error('queue length: '+queue.getLength());
+	if (nextRow == playerPos) {
+		// Game over, player is crushed by branch
+		alert('GAME OVER');
+	}
+}
 
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
+
+$.index.open();

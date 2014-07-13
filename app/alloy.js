@@ -9,3 +9,6 @@
 // object. For example:
 //
 // Alloy.Globals.someGlobalFunction = function(){};
+
+// Number of rows to make up the tree
+Alloy.Globals.numberOfTreeSections = 7;
