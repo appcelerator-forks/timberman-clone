@@ -1,0 +1,1 @@
+module.exports = [{"isClass":true,"priority":10000.0002,"key":"container","style":{backgroundColor:"white",}},{"isId":true,"priority":100000.0003,"key":"grid","style":{width:Ti.UI.FILL,layout:"vertical",top:"0dp",}},{"isId":true,"priority":100000.0004,"key":"chopButton","style":{bottom:"0dp",height:"45dp",width:Ti.UI.FILL,backgroundColor:"#1996be",}}];

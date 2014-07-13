@@ -1,0 +1,14 @@
+".container": {
+	backgroundColor:"white"
+},
+"#grid": {
+	width: Ti.UI.FILL,
+	layout: 'vertical',
+	top: '0dp',
+}
+"#chopButton": {
+	bottom: '0dp',
+	height: '45dp',
+	width: Ti.UI.FILL,
+	backgroundColor: '#1996be'
+}

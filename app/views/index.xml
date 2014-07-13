@@ -1,0 +1,6 @@
+<Alloy>
+	<Window class="container">
+		<View id="grid"></View>
+		<Button id="chopButton"></Button>
+	</Window>
+</Alloy>
