@@ -1,9 +1,17 @@
 <Alloy>
 	<Window class="container">
-		<View id="grid"></View>
-		<View id="trunk"></View>
-		<Button id="leftChopButton"></Button>
-		<Button id="rightChopButton"></Button>
-		<View id="player"></View>
+		<View id="menuView">
+			<Label id="title"></Label>
+			<Button id="startButton"></Button>
+		</View>
+		<View id="gameView">
+			<Button id="pauseButton"></Button>
+			<Label id="scoreLabel"></Label>
+			<View id="grid"></View>
+			<View id="stump"></View>
+			<Button id="leftChopButton"></Button>
+			<Button id="rightChopButton"></Button>
+			<View id="player"></View>
+		</View>
 	</Window>
 </Alloy>

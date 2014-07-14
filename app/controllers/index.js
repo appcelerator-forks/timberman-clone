@@ -9,23 +9,62 @@ var Position = {
 	middle : 2,
 };
 
+var isNewGame;
+
 // Adapt game to screen size
 var rotate180 = Ti.UI.create2DMatrix().rotate(180);
 var rowHeight = Math.floor(Titanium.Platform.displayCaps.platformHeight / 
 	Alloy.Globals.numberOfTreeSections);
+var gridHeight = rowHeight * (Alloy.Globals.numberOfTreeSections - 1);
 var columnWidth = Titanium.Platform.displayCaps.platformWidth / 3;
 var playerPosOffset = columnWidth / 4;
 
 // Initialize grid size in proportion to grid size
-$.grid.setHeight(rowHeight * (Alloy.Globals.numberOfTreeSections - 1));
+$.grid.setHeight(gridHeight);
 $.grid.setTransform(rotate180);
 
-// Initialize character size in proportion to screen size
-$.player.setHeight(rowHeight * 1.5);
-$.player.setWidth(columnWidth / 2);
-$.player.setBottom(rowHeight * 0.5);
-// Player starting pos
-$.player.setLeft(playerPosOffset);
+// Place tree stump
+$.stump.setTop(gridHeight);
+$.stump.setHeight(rowHeight / 3);
+$.stump.setWidth(Titanium.Platform.displayCaps.platformWidth / 2.5);
+
+// Initialize score
+var score;
+$.scoreLabel.setTop(rowHeight * 2);
+
+// Run game setup
+newGameSetup();
+
+// Run everytime a new game is started
+function newGameSetup() {
+	// Reset new game flag
+	isNewGame = true;
+	
+	// Clear tree
+	while (queue.getLength() > 0) {
+		queue.dequeue();
+		var rows = $.grid.getChildren();
+		$.grid.remove(rows[0]);
+	}
+	
+	// Initialize character size in proportion to screen size
+	$.player.setHeight(rowHeight * 1.5);
+	$.player.setWidth(columnWidth / 2);
+	$.player.setBottom(rowHeight * 0.5);
+	// Player starting pos
+	$.player.setLeft(playerPosOffset);
+	
+	// Reset score to 0
+	score = 0;
+	updateScore();
+	
+	// Add a right branch to prevent a tree branch from killing the player
+	// at the start of the game
+	addRow(getRandomInt(1,2));
+	while (queue.getLength() < (Alloy.Globals.numberOfTreeSections - 1)) {
+		addRow(getRandomInt(0,2));
+	}
+}
 
 /*
  * function addRow(type)
@@ -88,24 +127,28 @@ function addRow(type) {
 	}
 }
 
-// Add a right branch to prevent a tree branch from killing the player
-// at the start of the game
-addRow(Position.right);
-while (queue.getLength() < (Alloy.Globals.numberOfTreeSections - 1)) {
-	addRow(getRandomInt(0,1));
-}
-
 $.leftChopButton.addEventListener('singletap', function() {
+	checkIfNewGame();
 	$.player.setRight(undefined);
 	$.player.setLeft(playerPosOffset);
 	chopTree(Position.left);
 });
 
 $.rightChopButton.addEventListener('singletap', function() {
+	checkIfNewGame();
 	$.player.setLeft(undefined);
 	$.player.setRight(playerPosOffset);
 	chopTree(Position.right);
 });
+
+function checkIfNewGame() {
+	if (isNewGame) {
+		Ti.API.info('Game Start, health: '+Alloy.Globals.health);
+		isNewGame = false;
+		// Fire start game event
+		Ti.App.fireEvent('gameStart');
+	}
+}
 
 /*
  * function chopTree(playerPos)
@@ -133,12 +176,31 @@ function chopTree(playerPos) {
 	Ti.API.error('queue length: '+queue.getLength());
 	if (nextRow == playerPos) {
 		// Game over, player is crushed by branch
-		alert('GAME OVER');
+		Ti.App.fireEvent('gameOver');
+	}
+	else { 
+		score++;
+		updateScore();
+		Alloy.Globals.health = Alloy.Globals.health + 250;
+		// Level up
+		if ((score % 25) == 0) {
+			Alloy.Globals.drainRate += 1;
+			Ti.API.error('LEVEL UP');
+		}
 	}
 }
 
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
+
+function updateScore() {
+	$.scoreLabel.setText(score);
+}
+
+Ti.App.addEventListener('gameOver', function() {
+	alert('GAME OVER');
+	newGameSetup();
+});
 
 $.index.open();

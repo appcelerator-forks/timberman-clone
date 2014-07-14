@@ -1,6 +1,20 @@
 ".container": {
 	backgroundColor:"white"
 },
+"#gameView": {
+	height: Ti.UI.FILL,
+	width: Ti.UI.FILL,
+}
+"#pauseButton": {
+	
+}
+"#scoreLabel": {
+	font: {
+		fontSize: '24dp'
+	},
+	color: 'white',
+	zIndex: 1,
+}
 "#grid": {
 	width: Ti.UI.FILL,
 	layout: 'vertical',
@@ -10,15 +24,18 @@
 	height: '100%',
 	width: '50%',
 	left: '0dp',
-	zIndex: 1,
+	zIndex: 2,
 }
 "#rightChopButton": {
 	height: '100%',
 	width:'50%',
 	right: '0dp',
-	zIndex: 1,
+	zIndex: 2,
 }
 "#player": {
 	pos: 0,
 	backgroundColor: 'green',
+}
+"#stump": {
+	backgroundColor: 'black',
 }
