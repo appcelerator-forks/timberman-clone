@@ -14,9 +14,9 @@
 Alloy.Globals.numberOfTreeSections = 7;
 
 // Initialize health
-Alloy.Globals.maxHealth = 10000;
-Alloy.Globals.health = 5000;
-Alloy.Globals.drainRate = 10;
+Alloy.Globals.maxHealth = 100000;
+Alloy.Globals.health = 50000;
+Alloy.Globals.drainRate = 110;
 
 Ti.App.addEventListener('gameStart', function() {
 	Alloy.Globals.drain = setInterval(function() {
@@ -24,7 +24,6 @@ Ti.App.addEventListener('gameStart', function() {
 		Ti.API.error('health: '+Alloy.Globals.health);
 		if (Alloy.Globals.health <= 0) {
 			Ti.API.error('YOU ARE DEAD');
-			alert('GAME OVER');
 			clearInterval(Alloy.Globals.drain);
 			Ti.App.fireEvent('gameOver');
 		}
@@ -35,8 +34,8 @@ Ti.App.addEventListener('gameOver', function () {
 	clearInterval(Alloy.Globals.drain);
 	// To make sure interval is stopped before resetting the health
 	setTimeout(function() {
-		Alloy.Globals.health = 5000;
-		Alloy.Globals.drainRate = 10;
+		Alloy.Globals.health = 50000;
+		Alloy.Globals.drainRate = 110;
 	}, 100);
 });
 

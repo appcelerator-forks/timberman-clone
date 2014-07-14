@@ -9,6 +9,7 @@ var Position = {
 	middle : 2,
 };
 
+// Boolean to see when the first chop happens to start the game
 var isNewGame;
 
 // Adapt game to screen size
@@ -28,14 +29,40 @@ $.stump.setTop(gridHeight);
 $.stump.setHeight(rowHeight / 3);
 $.stump.setWidth(Titanium.Platform.displayCaps.platformWidth / 2.5);
 
-// Initialize score
+// Initialize score and level
 var score;
+var level;
 $.scoreLabel.setTop(rowHeight * 2);
+$.levelUpLabel.setTop((rowHeight * 2) - 50);
 
 // Run game setup
 newGameSetup();
 
-// Run everytime a new game is started
+$.leftChopButton.addEventListener('singletap', function() {
+	checkIfNewGame();
+	$.player.setRight(undefined);
+	$.player.setLeft(playerPosOffset);
+	chopTree(Position.left);
+});
+
+$.rightChopButton.addEventListener('singletap', function() {
+	checkIfNewGame();
+	$.player.setLeft(undefined);
+	$.player.setRight(playerPosOffset);
+	chopTree(Position.right);
+});
+
+Ti.App.addEventListener('gameOver', function() {
+	alert('GAME OVER');
+	newGameSetup();
+});
+
+/*
+ * function newGameSetup()
+ * 
+ * Run every time a new game is started.
+ * 
+ */
 function newGameSetup() {
 	// Reset new game flag
 	isNewGame = true;
@@ -57,6 +84,9 @@ function newGameSetup() {
 	// Reset score to 0
 	score = 0;
 	updateScore();
+	
+	// Reset level to 1
+	level = 1;
 	
 	// Add a right branch to prevent a tree branch from killing the player
 	// at the start of the game
@@ -127,20 +157,6 @@ function addRow(type) {
 	}
 }
 
-$.leftChopButton.addEventListener('singletap', function() {
-	checkIfNewGame();
-	$.player.setRight(undefined);
-	$.player.setLeft(playerPosOffset);
-	chopTree(Position.left);
-});
-
-$.rightChopButton.addEventListener('singletap', function() {
-	checkIfNewGame();
-	$.player.setLeft(undefined);
-	$.player.setRight(playerPosOffset);
-	chopTree(Position.right);
-});
-
 function checkIfNewGame() {
 	if (isNewGame) {
 		Ti.API.info('Game Start, health: '+Alloy.Globals.health);
@@ -181,11 +197,17 @@ function chopTree(playerPos) {
 	else { 
 		score++;
 		updateScore();
-		Alloy.Globals.health = Alloy.Globals.health + 250;
+		Alloy.Globals.health = Alloy.Globals.health + 2500;
 		// Level up
 		if ((score % 25) == 0) {
-			Alloy.Globals.drainRate += 1;
+			level++;
+			Alloy.Globals.drainRate += 5;
 			Ti.API.error('LEVEL UP');
+			$.levelUpLabel.setText('Level '+level);
+			$.levelUpLabel.show();
+			setTimeout(function() {
+				$.levelUpLabel.hide();
+			}, 1500);
 		}
 	}
 }
@@ -197,10 +219,5 @@ function getRandomInt(min, max) {
 function updateScore() {
 	$.scoreLabel.setText(score);
 }
-
-Ti.App.addEventListener('gameOver', function() {
-	alert('GAME OVER');
-	newGameSetup();
-});
 
 $.index.open();

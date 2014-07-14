@@ -6,7 +6,8 @@
 		</View>
 		<View id="gameView">
 			<Button id="pauseButton"></Button>
-			<Label id="scoreLabel"></Label>
+			<Label id="scoreLabel" class="label"></Label>
+			<Label id="levelUpLabel" class="label"></Label>
 			<View id="grid"></View>
 			<View id="stump"></View>
 			<Button id="leftChopButton"></Button>

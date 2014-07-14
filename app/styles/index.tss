@@ -8,9 +8,12 @@
 "#pauseButton": {
 	
 }
-"#scoreLabel": {
+"#levelUpLabel": {
+	visible: 'false',
+}
+".label": {
 	font: {
-		fontSize: '24dp'
+		fontSize: '28dp'
 	},
 	color: 'white',
 	zIndex: 1,
