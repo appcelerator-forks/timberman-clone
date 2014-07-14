@@ -9,6 +9,9 @@
 	
 }
 "#levelUpLabel": {
+	font: {
+		fontSize: '20dp'
+	},
 	visible: 'false',
 }
 ".label": {
@@ -23,17 +26,17 @@
 	layout: 'vertical',
 	top: '0dp',
 }
-"#leftChopButton": {
+".chopButton": {
 	height: '100%',
 	width: '50%',
-	left: '0dp',
+	backgroundColor: 'transparent',
 	zIndex: 2,
 }
+"#leftChopButton": {
+	left: '0dp',
+}
 "#rightChopButton": {
-	height: '100%',
-	width:'50%',
 	right: '0dp',
-	zIndex: 2,
 }
 "#player": {
 	pos: 0,

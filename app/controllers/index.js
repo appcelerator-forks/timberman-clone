@@ -29,11 +29,30 @@ $.stump.setTop(gridHeight);
 $.stump.setHeight(rowHeight / 3);
 $.stump.setWidth(Titanium.Platform.displayCaps.platformWidth / 2.5);
 
+// Create hp bar
+var maxHealthBar = Ti.UI.createView({
+	top: '40dp',
+	height: '30dp',
+	width: '200dp',
+	borderWidth: '1dp',
+	borderColor: '#4f4f4f',
+	backgroundColor: '#dddddd'
+});
+Alloy.Globals.healthBar = Ti.UI.createView({
+	left: '0dp',
+	height: Ti.UI.FILL,
+	width: (Alloy.Globals.health / Alloy.Globals.maxHealth * 200)+'dp',
+	backgroundColor: 'red'
+});
+
+maxHealthBar.add(Alloy.Globals.healthBar);
+$.gameView.add(maxHealthBar);
+
 // Initialize score and level
 var score;
 var level;
 $.scoreLabel.setTop(rowHeight * 2);
-$.levelUpLabel.setTop((rowHeight * 2) - 50);
+$.levelUpLabel.setTop((rowHeight * 2) - 35);
 
 // Run game setup
 newGameSetup();

@@ -22,6 +22,8 @@ Ti.App.addEventListener('gameStart', function() {
 	Alloy.Globals.drain = setInterval(function() {
 		Alloy.Globals.health -= Alloy.Globals.drainRate;
 		Ti.API.error('health: '+Alloy.Globals.health);
+		Alloy.Globals.healthBar.setWidth(
+				(Alloy.Globals.health / Alloy.Globals.maxHealth * 200)+'dp');
 		if (Alloy.Globals.health <= 0) {
 			Ti.API.error('YOU ARE DEAD');
 			clearInterval(Alloy.Globals.drain);
@@ -36,6 +38,8 @@ Ti.App.addEventListener('gameOver', function () {
 	setTimeout(function() {
 		Alloy.Globals.health = 50000;
 		Alloy.Globals.drainRate = 110;
+		Alloy.Globals.healthBar.setWidth(
+				(Alloy.Globals.health / Alloy.Globals.maxHealth * 200)+'dp');
 	}, 100);
 });
 

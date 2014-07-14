@@ -10,8 +10,8 @@
 			<Label id="levelUpLabel" class="label"></Label>
 			<View id="grid"></View>
 			<View id="stump"></View>
-			<Button id="leftChopButton"></Button>
-			<Button id="rightChopButton"></Button>
+			<Button id="leftChopButton" class="chopButton"></Button>
+			<Button id="rightChopButton" class="chopButton"></Button>
 			<View id="player"></View>
 		</View>
 	</Window>
