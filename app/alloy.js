@@ -17,6 +17,7 @@ Alloy.Globals.numberOfTreeSections = 7;
 Alloy.Globals.maxHealth = 100000;
 Alloy.Globals.health = 50000;
 Alloy.Globals.drainRate = 110;
+Alloy.Globals.maxDrainRate = 320;
 
 Ti.App.addEventListener('gameStart', function() {
 	Alloy.Globals.drain = setInterval(function() {

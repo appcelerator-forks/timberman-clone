@@ -8,8 +8,12 @@
 			<Button id="pauseButton"></Button>
 			<Label id="scoreLabel" class="label"></Label>
 			<Label id="levelUpLabel" class="label"></Label>
+			<View id="background"></View>
 			<View id="grid"></View>
-			<View id="stump"></View>
+			<View id="leftStump"></View>
+			<View id="middleStump"></View>
+			<View id="rightStump"></View>
+			<View id="soil"></View>
 			<Button id="leftChopButton" class="chopButton"></Button>
 			<Button id="rightChopButton" class="chopButton"></Button>
 			<View id="player"></View>

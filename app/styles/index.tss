@@ -1,5 +1,6 @@
 ".container": {
-	backgroundColor:"white"
+	backgroundColor:"white",
+	navBarHidden: true,
 },
 "#gameView": {
 	height: Ti.UI.FILL,
@@ -21,6 +22,10 @@
 	color: 'white',
 	zIndex: 1,
 }
+"#background": {
+	height: Ti.UI.FILL,
+	width: Ti.UI.FILL,
+}
 "#grid": {
 	width: Ti.UI.FILL,
 	layout: 'vertical',
@@ -30,7 +35,7 @@
 	height: '100%',
 	width: '50%',
 	backgroundColor: 'transparent',
-	zIndex: 2,
+	zIndex: 5,
 }
 "#leftChopButton": {
 	left: '0dp',
@@ -40,8 +45,24 @@
 }
 "#player": {
 	pos: 0,
-	backgroundColor: 'green',
+	// backgroundColor: 'green',
+	backgroundImage: '/woodpecker_left.png',
 }
-"#stump": {
-	backgroundColor: 'black',
+"#leftStump": {
+	right: '0dp',
+	height: Ti.UI.FILL,
+	backgroundImage: '/trunkend_left.png',
+}
+"#middleStump": {
+	backgroundColor: '#513300',
+}
+"#rightStump": {
+	left: '0dp',
+	height: Ti.UI.FILL,
+	backgroundImage: '/trunkend_right.png',
+}
+"#soil": {
+	bottom: '0dp',
+	width: Ti.UI.FILL,
+	backgroundColor: '#362406'
 }

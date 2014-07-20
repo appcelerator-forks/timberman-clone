@@ -16,18 +16,31 @@ var isNewGame;
 var rotate180 = Ti.UI.create2DMatrix().rotate(180);
 var rowHeight = Math.floor(Titanium.Platform.displayCaps.platformHeight / 
 	Alloy.Globals.numberOfTreeSections);
-var gridHeight = rowHeight * (Alloy.Globals.numberOfTreeSections - 1);
-var columnWidth = Titanium.Platform.displayCaps.platformWidth / 3;
-var playerPosOffset = columnWidth / 4;
+var gridHeight = OS_IOS ? rowHeight * (Alloy.Globals.numberOfTreeSections - 1) : PixelsToDPUnits(rowHeight * (Alloy.Globals.numberOfTreeSections - 1));
+var columnWidth = OS_IOS ? Titanium.Platform.displayCaps.platformWidth / 3 : PixelsToDPUnits(Titanium.Platform.displayCaps.platformWidth / 3);
+var playerPosOffset = columnWidth * 2;
+if (!OS_IOS) 
+	rowHeight = PixelsToDPUnits(rowHeight);
 
 // Initialize grid size in proportion to grid size
-$.grid.setHeight(gridHeight);
+$.grid.setHeight((gridHeight)+'dp');
 $.grid.setTransform(rotate180);
 
 // Place tree stump
-$.stump.setTop(gridHeight);
-$.stump.setHeight(rowHeight / 3);
-$.stump.setWidth(Titanium.Platform.displayCaps.platformWidth / 2.5);
+$.middleStump.setTop(gridHeight+'dp');
+$.leftStump.setTop(gridHeight+'dp');
+$.rightStump.setTop(gridHeight+'dp');
+$.middleStump.setHeight((rowHeight / 3)+'dp');
+$.leftStump.setHeight((rowHeight / 3)+'dp');
+$.rightStump.setHeight((rowHeight / 3)+'dp');
+$.rightStump.setLeft(columnWidth * 2);
+$.leftStump.setRight(columnWidth * 2);
+$.middleStump.setWidth(columnWidth);
+$.leftStump.setWidth(columnWidth / 3);
+$.rightStump.setWidth(columnWidth / 3);
+
+// Create soil
+$.soil.setTop(gridHeight + rowHeight / 3);
 
 // Create hp bar
 var maxHealthBar = Ti.UI.createView({
@@ -51,23 +64,36 @@ $.gameView.add(maxHealthBar);
 // Initialize score and level
 var score;
 var level;
-$.scoreLabel.setTop(rowHeight * 2);
-$.levelUpLabel.setTop((rowHeight * 2) - 35);
+$.scoreLabel.setTop((rowHeight * 2)+'dp');
+$.levelUpLabel.setTop(((rowHeight * 2) - 35)+'dp');
+
+// Initialize character size in proportion to screen size
+$.player.setHeight((rowHeight * 1.5)+'dp');
+$.player.setWidth((columnWidth / 2)+'dp');
+$.player.setBottom((rowHeight * 0.5)+'dp');
 
 // Run game setup
 newGameSetup();
 
-$.leftChopButton.addEventListener('singletap', function() {
+$.leftChopButton.addEventListener('touchstart', function() {
 	checkIfNewGame();
-	$.player.setRight(undefined);
-	$.player.setLeft(playerPosOffset);
+	if ($.player.pos == 1) {
+		$.player.pos = 0;
+		$.player.setLeft(undefined);
+		$.player.setRight(playerPosOffset);
+		$.player.setBackgroundImage('/woodpecker_left.png');
+	}
 	chopTree(Position.left);
 });
 
-$.rightChopButton.addEventListener('singletap', function() {
+$.rightChopButton.addEventListener('touchstart', function() {
 	checkIfNewGame();
-	$.player.setLeft(undefined);
-	$.player.setRight(playerPosOffset);
+	if ($.player.pos == 0) {
+		$.player.pos = 1;
+		$.player.setRight(undefined);
+		$.player.setLeft(playerPosOffset);
+		$.player.setBackgroundImage('/woodpecker_right.png');
+	}
 	chopTree(Position.right);
 });
 
@@ -86,6 +112,15 @@ function newGameSetup() {
 	// Reset new game flag
 	isNewGame = true;
 	
+	// Set background
+	var background = getRandomInt(0, 2);
+	if (background == 0) 
+		$.background.backgroundImage = "/bg1.png";
+	else if (background == 1)
+		$.background.backgroundImage = "/bg2.png";
+	else if (background == 2)
+		$.background.backgroundImage = "/bg3.png";
+		
 	// Clear tree
 	while (queue.getLength() > 0) {
 		queue.dequeue();
@@ -93,12 +128,12 @@ function newGameSetup() {
 		$.grid.remove(rows[0]);
 	}
 	
-	// Initialize character size in proportion to screen size
-	$.player.setHeight(rowHeight * 1.5);
-	$.player.setWidth(columnWidth / 2);
-	$.player.setBottom(rowHeight * 0.5);
 	// Player starting pos
-	$.player.setLeft(playerPosOffset);
+	// $.player.setLeft(playerPosOffset+'dp');
+	$.player.pos = 0;
+	$.player.setLeft(undefined);
+	$.player.setRight(playerPosOffset);
+	$.player.setBackgroundImage('/woodpecker_left.png');
 	
 	// Reset score to 0
 	score = 0;
@@ -126,41 +161,45 @@ function newGameSetup() {
  * 
  */
 function addRow(type) {
+	var branchType = getRandomInt(1, 2);
 	var row = Ti.UI.createView({
-		height: rowHeight,
+		height: rowHeight+'dp',
 		layout: 'horizontal',
 	});
 	// Populate row
 	for (var i = 0; i < 3; i++) {
 		var box = Ti.UI.createView({
-			height: rowHeight,
-			width: columnWidth,
+			height: rowHeight+'dp',
+			width: columnWidth+'dp',
 		});
 		// Right box
 		if (i == 0) {
 			if (type == Position.right) {
 				// Add branch
-				box.backgroundColor = 'black';
+				// box.backgroundColor = 'black';
+				box.backgroundImage = "/left_branch_"+branchType+".png";
 			}
 			else {
 				// Add blank
-				box.backgroundColor = 'white';
+				box.backgroundColor = 'transparent';
 			}
 		}
 		// Middle box
 		else if (i == 1) {
 			// Add trunk
-			box.backgroundColor = 'black';
+			box.backgroundColor = '#513300';
+			// box.backgroundImage = "/trunk.png";
 		}
 		// Left box
 		else if (i == 2) {
 			if (type == Position.left) {
 				// Add branch
-				box.backgroundColor = 'black';
+				// box.backgroundColor = 'black';
+				box.backgroundImage = "/right_branch_"+branchType+".png";
 			}
 			else {
 				// Add blank
-				box.backgroundColor = 'white';
+				box.backgroundColor = 'transparent';
 			}
 		}
 		row.add(box);
@@ -170,7 +209,7 @@ function addRow(type) {
 	// Add next row to grid
 	$.grid.add(row);
 	if (type == Position.left || type == Position.right) {
-		// Add a mandatory blank to guarantee death prevention if a branch
+		// Add a mandatory blank to prevent a guaranteed death if a branch
 		// was created
 		addRow(Position.middle);
 	}
@@ -197,9 +236,6 @@ function checkIfNewGame() {
  * 
  */
 function chopTree(playerPos) {
-	// 0 - left
-	// 1 - right
-	// 2 - blank
 	var poppedRow = queue.dequeue();
 	var nextRow = queue.peek();
 	Ti.API.error('pop: '+poppedRow);
@@ -216,11 +252,15 @@ function chopTree(playerPos) {
 	else { 
 		score++;
 		updateScore();
-		Alloy.Globals.health = Alloy.Globals.health + 2500;
+		if (Alloy.Globals.health <= Alloy.Globals.maxHealth - 2500)
+			Alloy.Globals.health += 2500;
+		else
+			Alloy.Globals.health = Alloy.Globals.maxHealth;
 		// Level up
-		if ((score % 25) == 0) {
+		if ((score % 20) == 0) {
 			level++;
-			Alloy.Globals.drainRate += 5;
+			if (Alloy.Globals.drainRate + 5 < Alloy.Globals.maxDrainRate)
+				Alloy.Globals.drainRate += 5;
 			Ti.API.error('LEVEL UP');
 			$.levelUpLabel.setText('Level '+level);
 			$.levelUpLabel.show();
@@ -237,6 +277,23 @@ function getRandomInt(min, max) {
 
 function updateScore() {
 	$.scoreLabel.setText(score);
+}
+
+function PixelsToDPUnits(ThePixels)
+{
+    if ( Titanium.Platform.displayCaps.dpi > 160 )
+        return (ThePixels / (Titanium.Platform.displayCaps.dpi / 160));
+    else 
+        return ThePixels;
+}
+ 
+ 
+function DPUnitsToPixels(TheDPUnits)
+{
+    if ( Titanium.Platform.displayCaps.dpi > 160 )
+          return (TheDPUnits * (Titanium.Platform.displayCaps.dpi / 160));
+    else 
+        return TheDPUnits;
 }
 
 $.index.open();
